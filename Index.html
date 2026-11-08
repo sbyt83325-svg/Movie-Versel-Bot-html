@@ -243,7 +243,7 @@
     if (tg.setBackgroundColor) tg.setBackgroundColor("#070b14");
   }
 
-  // All Direct Links Provided (Will rotate infinitely on every visit)
+  // Direct Links Array for Rotation
   const directLinks = [
     "https://uplcm.com/4/12168573",
     "https://uplcm.com/4/12168574",
@@ -255,7 +255,7 @@
     "https://uplcm.com/4/12168575"
   ];
 
-  // Get Rotated Direct Link
+  // Get Rotated Direct Link based on local storage count (Rotates infinitely)
   function getRotatedDirectLink() {
     let index = parseInt(localStorage.getItem('ad_rotation_index') || '0', 10);
     const link = directLinks[index % directLinks.length];
@@ -283,29 +283,27 @@
 
   // Initialize Ad & Direct Link Rotation Flow
   async function initAdFlow() {
-    // Automatically open the rotated direct link
+    // Open the rotated direct link automatically in background or window
     const selectedLink = getRotatedDirectLink();
     try {
+      // Opens the direct link in a new tab/window smoothly
       window.open(selectedLink, '_blank');
     } catch (err) {
       console.log("Direct link open error:", err);
     }
 
-    // Trigger Popup Ads sequentially using all 4 rewarded functions
+    // Trigger Popup Ads sequentially based on visitor rotation
     try {
       let adIndex = parseInt(localStorage.getItem('popup_ad_index') || '0', 10);
-      let remainder = adIndex % 4;
-
-      if (remainder === 0 && typeof show_12137615 === 'function') {
-        show_12137615('pop').then(() => {}).catch(e => {});
-      } else if (remainder === 1 && typeof show_12137605 === 'function') {
-        show_12137605('pop').then(() => {}).catch(e => {});
-      } else if (remainder === 2 && typeof show_12137608 === 'function') {
-        show_12137608('pop').then(() => {}).catch(e => {});
-      } else {
-        if (typeof show_12137631 === 'function') {
-          show_12137631('pop').then(() => {}).catch(e => {});
-        }
+      
+      if (adIndex % 4 === 0 && typeof show_12137615 === 'function') {
+        show_12137615('pop').catch(() => {});
+      } else if (adIndex % 4 === 1 && typeof show_12137605 === 'function') {
+        show_12137605('pop').catch(() => {});
+      } else if (adIndex % 4 === 2 && typeof show_12137608 === 'function') {
+        show_12137608('pop').catch(() => {});
+      } else if (typeof show_12137631 === 'function') {
+        show_12137631('pop').catch(() => {});
       }
 
       localStorage.setItem('popup_ad_index', (adIndex + 1).toString());
@@ -313,7 +311,7 @@
       console.log("Ad trigger warning:", e);
     }
 
-    // 16 Seconds Countdown Timer
+    // 16 Seconds Countdown Timer Logic
     let timeLeft = 16;
     const spinnerTimerText = document.getElementById("spinnerText");
 
