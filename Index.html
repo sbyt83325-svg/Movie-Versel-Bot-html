@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MovieVerse - Unlock Content</title>
+<!-- Telegram WebApp SDK -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root {
+    --bg-gradient: linear-gradient(135deg, #070b14 0%, #0f172a 50%, #090d16 100%);
+    --card-bg: rgba(20, 27, 45, 0.75);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --primary: #3b82f6;
+    --success: #10b981;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent-glow: rgba(59, 130, 246, 0.3);
+  }
+  
+  * { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background: var(--bg-gradient);
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 16px;
+    overflow-x: hidden;
+  }
+
+  .card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: 28px;
+    padding: 28px 20px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    text-align: center;
+    position: relative;
+  }
+
+  .tutorial-video-container {
+    width: 100%;
+    margin-bottom: 16px;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #000;
+    position: relative;
+    aspect-ratio: 16/9;
+  }
+
+  .tutorial-video-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  h1 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+    background: linear-gradient(to right, #ffffff, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    line-height: 1.4;
+  }
+
+  #ad-container {
+    width: 100%;
+    min-height: 200px;
+    background: rgba(11, 15, 25, 0.7);
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+    gap: 12px;
+  }
+
+  .loader-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(255, 255, 255, 0.08);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  .loader-text {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  @keyframes spin { 
+    to { transform: rotate(360deg); } 
+  }
+
+  #action-section {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .instruction-box {
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 12px;
+    color: #cbd5e1;
+    line-height: 1.5;
+    text-align: left;
+  }
+
+  .instruction-box strong {
+    color: #38bdf8;
+  }
+
+  .btn-action {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-copy {
+    background: linear-gradient(135deg, var(--primary), #2563eb);
+    color: white;
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+  }
+
+  .btn-copy:active {
+    transform: scale(0.97);
+  }
+
+  .btn-copy.copied {
+    background: linear-gradient(135deg, #059669, var(--success));
+    box-shadow: 0 6px 16px rgba(34, 197, 94, 0.3);
+  }
+
+  .btn-apply {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+  }
+
+  .btn-apply:active {
+    transform: scale(0.97);
+  }
+
+  .error-box {
+    color: #f87171;
+    font-size: 12px;
+    padding: 10px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 10px;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="tutorial-video-container">
+    <iframe src="https://www.youtube.com/embed/xUVuNaOXkt0" title="How to get video tutorial" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  </div>
+
+  <h1 id="titleText">Unlock Content</h1>
+  <p class="subtitle" id="subtitleText">Please wait while we prepare your sponsorship advertisement.</p>
+
+  <div id="ad-container">
+    <div class="loader-spinner" id="spinner"></div>
+    <div class="loader-text" id="spinnerText">Loading Advertisement... (16s)</div>
+  </div>
+
+  <div id="action-section">
+    <div class="instruction-box">
+      <strong>How to Get Your Video:</strong><br>
+      1. Tap <b>"COPY CODE"</b> to copy your verification key.<br>
+      2. Return to the Telegram bot chat.<br>
+      3. Paste the key in the chat and send it to unlock your video.<br>
+      4. Tap <b>"APPLY KEY"</b> below to close this window.
+    </div>
+
+    <button class="btn-action btn-copy" id="copy-btn" onclick="copyCode()">
+      📋 COPY CODE
+    </button>
+
+    <button class="btn-action btn-apply" id="apply-btn" onclick="applyKeyAndClose()">
+      ✅ APPLY KEY
+    </button>
+  </div>
+</div>
+
+<script>
+  const tg = window.Telegram?.WebApp;
+  let extractedCode = "";
+  let isAdFinished = false;
+
+  if (tg) {
+    tg.ready();
+    tg.expand();
+    if (tg.setHeaderColor) tg.setHeaderColor("#070b14");
+    if (tg.setBackgroundColor) tg.setBackgroundColor("#070b14");
+  }
+
+  // All Direct Links Provided (Will rotate infinitely on every visit)
+  const directLinks = [
+    "https://uplcm.com/4/12168573",
+    "https://uplcm.com/4/12168574",
+    "https://uplcm.com/4/12168576",
+    "https://uplcm.com/4/11378637",
+    "https://asiafilm.org/4/6959a44e75587c64e23e547dfa78775d",
+    "https://asiafilm.org/4/8e7ff25eb6d07ea921e2e6f86febc560",
+    "https://asiafilm.org/4/a02a7df18e4817776be51c492eced14e",
+    "https://uplcm.com/4/12168575"
+  ];
+
+  // Get Rotated Direct Link
+  function getRotatedDirectLink() {
+    let index = parseInt(localStorage.getItem('ad_rotation_index') || '0', 10);
+    const link = directLinks[index % directLinks.length];
+    localStorage.setItem('ad_rotation_index', (index + 1).toString());
+    return link;
+  }
+
+  // Extract Code from URL or Start Param
+  function getCodeFromUrl() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      let code = params.get("code") || "";
+      
+      if (!code && tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
+        code = tg.initDataUnsafe.start_param;
+      }
+      
+      code = code.replace(/^GET_/, "").trim();
+      return code;
+    } catch (e) {
+      console.error("Extraction error:", e);
+      return "";
+    }
+  }
+
+  // Initialize Ad & Direct Link Rotation Flow
+  async function initAdFlow() {
+    // Automatically open the rotated direct link
+    const selectedLink = getRotatedDirectLink();
+    try {
+      window.open(selectedLink, '_blank');
+    } catch (err) {
+      console.log("Direct link open error:", err);
+    }
+
+    // Trigger Popup Ads sequentially using all 4 rewarded functions
+    try {
+      let adIndex = parseInt(localStorage.getItem('popup_ad_index') || '0', 10);
+      let remainder = adIndex % 4;
+
+      if (remainder === 0 && typeof show_12137615 === 'function') {
+        show_12137615('pop').then(() => {}).catch(e => {});
+      } else if (remainder === 1 && typeof show_12137605 === 'function') {
+        show_12137605('pop').then(() => {}).catch(e => {});
+      } else if (remainder === 2 && typeof show_12137608 === 'function') {
+        show_12137608('pop').then(() => {}).catch(e => {});
+      } else {
+        if (typeof show_12137631 === 'function') {
+          show_12137631('pop').then(() => {}).catch(e => {});
+        }
+      }
+
+      localStorage.setItem('popup_ad_index', (adIndex + 1).toString());
+    } catch (e) {
+      console.log("Ad trigger warning:", e);
+    }
+
+    // 16 Seconds Countdown Timer
+    let timeLeft = 16;
+    const spinnerTimerText = document.getElementById("spinnerText");
+
+    const countdownInterval = setInterval(() => {
+      timeLeft--;
+      if (timeLeft > 0) {
+        spinnerTimerText.innerText = `Please wait... completing ad (${timeLeft}s)`;
+      } else {
+        clearInterval(countdownInterval);
+        finishAdAndShowOptions();
+      }
+    }, 1000);
+  }
+
+  // Show Options after Ad Countdown Finishes
+  function finishAdAndShowOptions() {
+    if (isAdFinished) return;
+    isAdFinished = true;
+
+    document.getElementById("titleText").innerText = "Ad Completed!";
+    document.getElementById("subtitleText").innerText = "Follow the instructions below to get your content.";
+    
+    document.getElementById("ad-container").style.display = "none";
+    document.getElementById("action-section").style.display = "flex";
+
+    if (tg && tg.HapticFeedback) {
+      tg.HapticFeedback.notificationOccurred('success');
+    }
+  }
+
+  // Copy Code Function
+  function copyCode() {
+    if (!extractedCode) return;
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(extractedCode).then(showCopySuccess).catch(() => fallbackCopy());
+    } else {
+      fallbackCopy();
+    }
+  }
+
+  function fallbackCopy() {
+    const textArea = document.createElement("textarea");
+    textArea.value = extractedCode;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+      document.execCommand('copy');
+      showCopySuccess();
+    } catch (err) {
+      alert("Failed to copy. Please manually select and copy.");
+    }
+    document.body.removeChild(textArea);
+  }
+
+  function showCopySuccess() {
+    const btn = document.getElementById("copy-btn");
+    btn.innerHTML = "✅ COPIED TO CLIPBOARD!";
+    btn.classList.add("copied");
+    
+    if (tg && tg.HapticFeedback) {
+      tg.HapticFeedback.notificationOccurred('success');
+    }
+
+    setTimeout(() => {
+      btn.innerHTML = "📋 COPY CODE";
+      btn.classList.remove("copied");
+    }, 3000);
+  }
+
+  // Apply Key and Close Mini App
+  function applyKeyAndClose() {
+    if (tg && tg.HapticFeedback) {
+      tg.HapticFeedback.notificationOccurred('success');
+    }
+
+    const applyBtn = document.getElementById("apply-btn");
+    applyBtn.innerText = "✅ APPLIED & CLOSING...";
+    applyBtn.style.background = "#059669";
+
+    setTimeout(() => {
+      if (tg && tg.close) {
+        tg.close();
+      } else {
+        window.close();
+      }
+    }, 600);
+  }
+
+  // App Startup Entry
+  document.addEventListener("DOMContentLoaded", () => {
+    extractedCode = getCodeFromUrl();
+
+    // Validate 17-character Code
+    if (!extractedCode || !/^[a-zA-Z0-9]{17}$/.test(extractedCode)) {
+      document.getElementById("titleText").innerText = "❌ Invalid Link";
+      document.getElementById("subtitleText").innerText = "Please open this mini-app securely through your Telegram bot.";
+      document.getElementById("spinner").style.display = "none";
+      document.getElementById("spinnerText").style.display = "none";
+      document.getElementById("ad-container").style.border = "1px solid rgba(239, 68, 68, 0.4)";
+      
+      const err = document.createElement("div");
+      err.className = "error-box";
+      err.innerText = "Error: Invalid or missing authorization code.";
+      document.getElementById("ad-container").appendChild(err);
+      return;
+    }
+
+    initAdFlow();
+  });
+</script>
+</body>
+</html>
