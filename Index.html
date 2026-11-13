@@ -209,7 +209,7 @@
 
   <div id="ad-container">
     <div class="loader-spinner" id="spinner"></div>
-    <div class="loader-text" id="spinnerText">Loading Advertisement... (16s)</div>
+    <div class="loader-text" id="spinnerText">Loading Advertisement... (11s)</div>
   </div>
 
   <div id="action-section">
@@ -246,14 +246,12 @@
   // Direct Links Array for Rotation
   const directLinks = [
     "https://uplcm.com/4/12168573",
-    "https://uplcm.com/4/12168574",
     "https://uplcm.com/4/12168576",
     "https://uplcm.com/4/11378637",
     "https://asiafilm.org/4/6959a44e75587c64e23e547dfa78775d",
     "https://asiafilm.org/4/8e7ff25eb6d07ea921e2e6f86febc560",
     "https://asiafilm.org/4/a02a7df18e4817776be51c492eced14e",
-    "https://uplcm.com/4/12168575"
-  ];
+   ];
 
   // Get Rotated Direct Link based on local storage count (Rotates infinitely)
   function getRotatedDirectLink() {
@@ -312,7 +310,7 @@
     }
 
     // 16 Seconds Countdown Timer Logic
-    let timeLeft = 16;
+    let timeLeft = 11;
     const spinnerTimerText = document.getElementById("spinnerText");
 
     const countdownInterval = setInterval(() => {
